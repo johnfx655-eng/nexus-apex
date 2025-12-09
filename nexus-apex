@@ -79,7 +79,7 @@
         <nav class="container">
             <div class="logo">Nexus Apex</div>
             <ul class="nav-links">
-                <li><a href="#" data-page="intelligence" class="active">Intelligence</a></li>
+                <li><a href="#" data-page="intelligence" class="active" aria-current="page">Intelligence</a></li>
                 <li><a href="#" data-page="protocols">Protocols</a></li>
                 <li><a href="#" data-page="sovereign-id">Sovereign ID</a></li>
             </ul>
@@ -98,11 +98,11 @@
             <div class="main-grid">
                 <article class="card main-balance-card">
                     <header class="card-header">Total Asset Value</header>
-                    <div class="card-value" id="netWorth">0 ILS</div>
+                    <div class="card-value" id="netWorth">₪0</div>
                     <p style="font-family: 'Orbitron', sans-serif; color: var(--warning); font-size: 1.8rem;">Status: <span id="fundStatus">Quantum Entanglement Stable</span></p>
                     <div style="margin-top: 2rem; display: flex; justify-content: space-around;">
-                        <div><p style="font-size: 1.2rem; opacity: 0.7;">Decoupling Fee</p><p style="font-size: 1.8rem; font-weight: bold; color: var(--danger);" id="releaseFee">5,600 ILS</p></div>
-                        <div><p style="font-size: 1.2rem; opacity: 0.7;">Final Amount</p><p style="font-size: 1.8rem; font-weight: bold;" id="finalAmount">226,440 ILS</p></div>
+                        <div><p style="font-size: 1.2rem; opacity: 0.7;">Decoupling Fee</p><p style="font-size: 1.8rem; font-weight: bold; color: var(--danger);" id="releaseFee">—</p></div>
+                        <div><p style="font-size: 1.2rem; opacity: 0.7;">Final Amount</p><p style="font-size: 1.8rem; font-weight: bold;" id="finalAmount">—</p></div>
                     </div>
                 </article>
                 <article class="card">
@@ -125,9 +125,9 @@
             <section class="card" style="margin-top: 2rem;">
                 <header class="card-header">
                     <span>Quantum Transaction Ledger</span>
-                    <button class="btn btn-primary" onclick="playWelcomeNote()"><i class="fas fa-volume-up"></i> Audio Summary</button>
+                    <button id="audioSummaryBtn" class="btn btn-primary"><i class="fas fa-volume-up"></i> Audio Summary</button>
                 </header>
-                <table class="data-table">
+                <table class="data-table" aria-live="polite">
                     <thead><tr><th>Timestamp</th><th>Event</th><th>Hash ID</th><th style="text-align: right;">Value</th></tr></thead>
                     <tbody id="transactionLog"></tbody>
                 </table>
@@ -176,7 +176,7 @@
 
     </main>
 
-    <div id="notification" class="notification"><p id="notificationText"></p></div>
+    <div id="notification" class="notification" role="status" aria-live="polite"><p id="notificationText"></p></div>
 
     <script>
         // ====================================================================================
@@ -185,49 +185,109 @@
         const appState = {
             user: { name: "Amnon Ronen", initials: "AR" },
             funds: { pending: 226440, fee: 5600, status: 'processing' },
-            transactions: [ { id: 1, name: "Prize Entanglement", date: new Date().toISOString(), amount: 226440, status: "Entangled", hash: "0x7f8a3b9c..." } ],
+            transactions: [
+                { id: 1, name: "Prize Entanglement", date: new Date().toISOString(), amount: 226440, status: "Entangled", hash: "0x7f8a3b9c1d2e4f5a9b8c7d6e5a4b3c2d" }
+            ],
         };
 
         // ====================================================================================
         // CORE UTILITY FUNCTIONS
         // ====================================================================================
-        function formatCurrency(amount) { return new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS' }).format(amount); }
-        function showNotification(message, duration = 4000) { const el = document.getElementById('notification'); document.getElementById('notificationText').textContent = message; el.classList.add('show'); setTimeout(() => el.classList.remove('show'), duration); }
-        function playWelcomeNote() { const message = `Welcome to Nexus Apex. Your assets are in a stable quantum entanglement. A decoupling fee of 5,600 ILS is required to finalize the transfer.`; const utterance = new SpeechSynthesisUtterance(message); utterance.lang = 'en-US'; utterance.rate = 0.9; speechSynthesis.speak(utterance); showNotification("Audio summary initiated..."); }
+        function formatCurrency(amount) {
+            try {
+                return new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS' }).format(amount);
+            } catch (err) {
+                // Fallback if Intl not available
+                return '₪' + Number(amount).toLocaleString();
+            }
+        }
+        function showNotification(message, duration = 4000) {
+            const el = document.getElementById('notification');
+            document.getElementById('notificationText').textContent = message;
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), duration);
+        }
+
+        function playWelcomeNote() {
+            // Use current fee from appState, and compute final amount dynamically
+            const fee = appState.funds.fee;
+            const finalAmount = Math.max(0, appState.funds.pending - fee);
+            const message = `Welcome to Nexus Apex. Your assets are in a stable quantum entanglement. A decoupling fee of ${formatCurrency(fee)} is required to finalize the transfer. The final amount after fee will be ${formatCurrency(finalAmount)}.`;
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(message);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.9;
+                try {
+                    speechSynthesis.speak(utterance);
+                    showNotification("Audio summary initiated...");
+                } catch (err) {
+                    // speech couldn't start
+                    showNotification("Unable to play audio summary on this device.");
+                    console.error('SpeechSynthesis error', err);
+                }
+            } else {
+                // Provide fallback visual notification
+                showNotification("Audio not supported in this browser. " + message, 8000);
+            }
+        }
 
         // ====================================================================================
         // PAGE RENDERING LOGIC
         // ====================================================================================
         function renderIntelligencePage() {
-            document.getElementById('netWorth').textContent = formatCurrency(appState.funds.pending);
-            document.getElementById('releaseFee').textContent = formatCurrency(appState.funds.fee);
-            document.getElementById('finalAmount').textContent = formatCurrency(appState.funds.pending);
+            const netWorthEl = document.getElementById('netWorth');
+            const releaseFeeEl = document.getElementById('releaseFee');
+            const finalAmountEl = document.getElementById('finalAmount');
+
+            const pending = Number(appState.funds.pending) || 0;
+            const fee = Number(appState.funds.fee) || 0;
+            const finalAmount = Math.max(0, pending - fee);
+
+            netWorthEl.textContent = formatCurrency(pending);
+            releaseFeeEl.textContent = formatCurrency(fee);
+            finalAmountEl.textContent = formatCurrency(finalAmount);
+
             document.getElementById('fundStatus').textContent = 'Quantum Entanglement Stable';
             document.querySelector('.user-avatar').textContent = appState.user.initials;
-            const logHtml = appState.transactions.map(t => `<tr><td>${new Date(t.date).toLocaleTimeString()}</td><td>${t.name}</td><td>${t.hash}</td><td style="text-align: right; font-weight: bold; color: var(--accent-green);">${formatCurrency(t.amount)}</td></tr>`).join('');
+
+            const logHtml = appState.transactions.map(t => {
+                const date = new Date(t.date);
+                // Show full date + time for clarity
+                const ts = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+                // show full hash (or truncate per your policy)
+                const hash = t.hash || '';
+                return `<tr><td>${ts}</td><td>${t.name}</td><td>${hash}</td><td style="text-align: right; font-weight: bold; color: var(--accent-green);">${formatCurrency(t.amount)}</td></tr>`;
+            }).join('');
             document.getElementById('transactionLog').innerHTML = logHtml;
         }
 
         // ====================================================================================
         // SPA NAVIGATION SYSTEM
-        // This is the core of the new functionality.
         // ====================================================================================
         function showPage(pageId) {
             // 1. Hide all pages
             document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
 
             // 2. Show the selected page
-            document.getElementById(pageId).classList.add('active');
+            const target = document.getElementById(pageId);
+            if (!target) return;
+            target.classList.add('active');
 
             // 3. Update the active navigation link
-            document.querySelectorAll('.nav-links a').forEach(link => link.classList.remove('active'));
-            document.querySelector(`.nav-links a[data-page="${pageId}"]`).classList.add('active');
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.classList.remove('active');
+                link.removeAttribute('aria-current');
+            });
+            const activeLink = document.querySelector(`.nav-links a[data-page="${pageId}"]`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+                activeLink.setAttribute('aria-current', 'page');
+            }
 
             // 4. Render the content for the specific page
             if (pageId === 'intelligence') {
                 renderIntelligencePage();
             }
-            // Add more `else if` blocks here for other pages if they have dynamic content
         }
 
         // ====================================================================================
@@ -242,6 +302,15 @@
                     showPage(targetPage);
                 });
             });
+
+            // audio summary button
+            const audioBtn = document.getElementById('audioSummaryBtn');
+            if (audioBtn) {
+                audioBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    playWelcomeNote();
+                });
+            }
 
             // Initial render of the default page
             renderIntelligencePage();
