@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Apex - Sovereign Financial Intelligence</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        /* ====================================================================================
+           CSS CUSTOM PROPERTIES (VARIABLES)
+        ==================================================================================== */
+        :root {
+            --primary-cyan: #00E5FF; --primary-magenta: #FF4081; --accent-green: #76FF03;
+            --dark-bg: #020A12; --card-bg: rgba(10, 25, 47, 0.7);
+            --text-primary: #E0F7FA; --text-secondary: #80DEEA;
+            --warning: #FFD740; --danger: #FF1744; --radius: 12px;
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Aldrich&family=Orbitron:wght@400;700;900&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Share Tech Mono', monospace; background: var(--dark-bg); color: var(--text-primary); line-height: 1.6; font-size: 22px; overflow-x: hidden; background-image: radial-gradient(circle at 25% 25%, rgba(0, 229, 255, 0.1) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(255, 64, 129, 0.1) 0%, transparent 50%); }
+        .quantum-grid { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px); background-size: 60px 60px; z-index: -2; animation: grid-drift 30s linear infinite; }
+        @keyframes grid-drift { 0% { transform: translate(0, 0); } 100% { transform: translate(60px, 60px); } }
+
+        .container { max-width: 2200px; margin: 0 auto; padding: 1rem; }
+        header { background: linear-gradient(180deg, rgba(10, 25, 47, 0.9) 0%, rgba(10, 25, 47, 0.4) 100%); backdrop-filter: blur(20px); border-bottom: 1px solid var(--primary-cyan); padding: 1.5rem 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 30px rgba(0,0,0,0.5); }
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 0 1rem; }
+        .logo { font-family: 'Orbitron', sans-serif; font-size: 2.8rem; font-weight: 900; background: linear-gradient(135deg, var(--primary-cyan), var(--primary-magenta)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; letter-spacing: 3px; }
+        .nav-links { display: flex; gap: 1.5rem; list-style: none; }
+        .nav-links a { color: var(--text-secondary); text-decoration: none; font-weight: 700; padding: 1rem 1.5rem; border-radius: var(--radius); transition: var(--transition); font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1.5px; }
+        .nav-links a:hover, .nav-links a.active { color: var(--text-primary); background: rgba(0, 229, 255, 0.1); border: 1px solid rgba(0, 229, 255, 0.3); }
+        .user-area { display: flex; align-items: center; gap: 1.5rem; }
+        .user-avatar { width: 55px; height: 55px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-cyan), var(--primary-magenta)); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.5rem; box-shadow: 0 0 25px var(--primary-cyan); }
+
+        .main-grid { display: grid; grid-template-columns: 2.5fr 1fr 1fr; gap: 2rem; margin-top: 2rem; }
+        .card { background: var(--card-bg); backdrop-filter: blur(10px); border-radius: var(--radius); padding: 2.5rem; border: 1px solid rgba(0, 229, 255, 0.2); transition: var(--transition); position: relative; overflow: hidden; }
+        .card::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(0, 229, 255, 0.1), transparent); transition: left 0.5s; }
+        .card:hover::before { left: 100%; }
+        .card:hover { transform: translateY(-8px); border-color: var(--primary-cyan); box-shadow: 0 15px 40px rgba(0, 229, 255, 0.2); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 1rem; font-family: 'Orbitron', sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; font-size: 1.6rem; }
+        .card-title { font-size: 1.8rem; }
+        .card-value { font-family: 'Orbitron', sans-serif; font-size: 5rem; font-weight: 900; color: var(--accent-green); text-shadow: 0 0 20px var(--accent-green); letter-spacing: 2px; }
+        .main-balance-card { background: linear-gradient(135deg, rgba(0, 229, 255, 0.1), rgba(255, 0, 255, 0.1)); text-align: center; padding: 3rem; border: 1px solid rgba(255, 0, 255, 0.3); }
+        .main-balance-card .card-value { font-size: 5rem; margin: 1.5rem 0; }
+        .btn { padding: 1.2rem 2rem; border: none; border-radius: var(--radius); font-weight: 700; cursor: pointer; transition: var(--transition); font-size: 1.3rem; text-transform: uppercase; letter-spacing: 1px; font-family: 'Orbitron', sans-serif; }
+        .btn-primary { background: linear-gradient(90deg, var(--primary-cyan), var(--primary-magenta)); color: var(--dark-bg); box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4); }
+        .btn-primary:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(0, 212, 255, 0.6); }
+        .data-table { width: 100%; border-collapse: collapse; font-family: 'Share Tech Mono', monospace; font-size: 1.2rem; }
+        .data-table th, .data-table td { padding: 1rem; text-align: left; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .data-table th { font-weight: 700; color: var(--text-secondary); text-transform: uppercase; font-size: 1rem; letter-spacing: 1px; }
+        .data-table tbody tr:hover { background: rgba(0, 229, 255, 0.05); }
+        .page { display: none; animation: fadeIn 0.5s ease; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .quantum-core { width: 150px; height: 150px; margin: 1.5rem auto; position: relative; animation: core-spin 4s linear infinite; }
+        @keyframes core-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .core-ring { position: absolute; width: 100%; height: 100%; border: 4px solid transparent; border-radius: 50%; }
+        .core-ring:nth-child(1) { border-top-color: var(--primary-cyan); border-right-color: var(--primary-magenta); }
+        .core-ring:nth-child(2) { width: 80%; height: 80%; top: 10%; left: 10%; animation: core-spin-reverse 3s linear infinite; border-top-color: var(--accent-green); border-left-color: var(--warning); }
+        .core-ring:nth-child(3) { width: 60%; height: 60%; top: 20%; left: 20%; border-bottom-color: var(--primary-cyan); border-left-color: var(--primary-magenta); animation: core-spin 2s linear infinite; }
+        @keyframes core-spin-reverse { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
+        h1 { font-family: 'Orbitron', sans-serif; margin-bottom: 2rem; font-size: 3.5rem; text-align: center; text-transform: uppercase; letter-spacing: 3px; }
+        .protocol-status { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; font-size: 1.3rem; }
+        .protocol-status span:first-child { font-weight: 700; }
+        .protocol-status span:last-child { color: var(--accent-green); font-weight: bold; }
+        .protocol-status.inactive span:last-child { color: var(--danger); }
+        .detail-item { display: flex; justify-content: space-between; padding: 1rem 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 1.2rem; }
+        .detail-item:last-child { border-bottom: none; }
+        .detail-item span:first-child { font-weight: 700; color: var(--text-secondary); }
+        .detail-item span:last-child { font-family: 'Courier New', Courier, monospace; color: var(--primary-cyan); }
+        .notification { position: fixed; bottom: 20px; right: 20px; background: var(--card-bg); border-left: 5px solid var(--accent-green); padding: 1.5rem 2rem; border-radius: var(--radius); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); display: none; z-index: 1000; max-width: 450px; font-family: 'Orbitron', sans-serif; font-size: 1.2rem; }
+        .notification.show { display: block; animation: slideIn 0.4s ease; }
+        @keyframes slideIn { from { transform: translateX(120%); } to { transform: translateX(0); } }
+    </style>
+</head>
+<body>
+    <div class="quantum-grid"></div>
+    <header>
+        <nav class="container">
+            <div class="logo">Nexus Apex</div>
+            <ul class="nav-links">
+                <li><a href="#" data-page="intelligence" class="active">Intelligence</a></li>
+                <li><a href="#" data-page="protocols">Protocols</a></li>
+                <li><a href="#" data-page="sovereign-id">Sovereign ID</a></li>
+            </ul>
+            <div class="user-area">
+                <div class="user-avatar">AR</div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <!-- ====================================================================================
+           INTELLIGENCE PAGE
+           The primary view, displaying key financial data and system status.
+        ==================================================================================== -->
+        <section id="intelligence" class="page active">
+            <div class="main-grid">
+                <article class="card main-balance-card">
+                    <header class="card-header">Total Asset Value</header>
+                    <div class="card-value" id="netWorth">0 ILS</div>
+                    <p style="font-family: 'Orbitron', sans-serif; color: var(--warning); font-size: 1.8rem;">Status: <span id="fundStatus">Quantum Entanglement Stable</span></p>
+                    <div style="margin-top: 2rem; display: flex; justify-content: space-around;">
+                        <div><p style="font-size: 1.2rem; opacity: 0.7;">Decoupling Fee</p><p style="font-size: 1.8rem; font-weight: bold; color: var(--danger);" id="releaseFee">5,600 ILS</p></div>
+                        <div><p style="font-size: 1.2rem; opacity: 0.7;">Final Amount</p><p style="font-size: 1.8rem; font-weight: bold;" id="finalAmount">226,440 ILS</p></div>
+                    </div>
+                </article>
+                <article class="card">
+                    <header class="card-header">Quantum Core Status</header>
+                    <div class="quantum-core">
+                        <div class="core-ring"></div>
+                        <div class="core-ring"></div>
+                        <div class="core-ring"></div>
+                    </div>
+                    <p style="text-align: center; color: var(--accent-green); font-family: 'Aldrich', sans-serif; font-size: 1.8rem;">STABLE RESONANCE</p>
+                </article>
+                <article class="card">
+                    <header class="card-header">System Health</header>
+                    <div class="protocol-status"><span>Quantum Link</span><span>ONLINE</span></div>
+                    <div class="protocol-status"><span>Data 4.0 Sync</span><span>ONLINE</span></div>
+                    <div class="protocol-status inactive"><span>Sovereign ID</span><span>PENDING</span></div>
+                    <div class="protocol-status"><span>AI Predictive Engine</span><span>ONLINE</span></div>
+                </article>
+            </div>
+            <section class="card" style="margin-top: 2rem;">
+                <header class="card-header">
+                    <span>Quantum Transaction Ledger</span>
+                    <button class="btn btn-primary" onclick="playWelcomeNote()"><i class="fas fa-volume-up"></i> Audio Summary</button>
+                </header>
+                <table class="data-table">
+                    <thead><tr><th>Timestamp</th><th>Event</th><th>Hash ID</th><th style="text-align: right;">Value</th></tr></thead>
+                    <tbody id="transactionLog"></tbody>
+                </table>
+            </section>
+        </section>
+
+        <!-- ====================================================================================
+           PROTOCOLS PAGE
+           Displays active quantum algorithms and their status.
+        ==================================================================================== -->
+        <section id="protocols" class="page">
+            <h1>Active Quantum Protocols</h1>
+            <div class="main-grid">
+                <article class="card">
+                    <header class="card-header">Shor's Algorithm - Decryption</header>
+                    <p style="margin-bottom: 1rem;">Utilizing quantum factoring to secure fund release pathways. Currently factoring release fee transaction key.</p>
+                    <div class="detail-item"><span>Status</span><span style="color: var(--warning);">In Progress (78%)</span></div>
+                    <div class="detail-item"><span>Qubits Used</span><span>4096</span></div>
+                    <div class="detail-item"><span>Time Remaining</span><span>~2m 14s</span></div>
+                </article>
+                <article class="card">
+                    <header class="card-header">Grover's Algorithm - Search</header>
+                    <p style="margin-bottom: 1rem;">Searching the decentralized ledger for your asset verification data.</p>
+                    <div class="detail-item"><span>Status</span><span style="color: var(--accent-green);">Complete</span></div>
+                    <div class="detail-item"><span>Items Searched</span><span>1.2 Trillion</span></div>
+                    <div class="detail-item"><span>Verification Hash</span><span>0x7f8a3b9c1d2e4f5a9b8c7d6e5a4b3c2d</span></div>
+                </article>
+            </div>
+        </section>
+
+        <!-- ====================================================================================
+           SOVEREIGN ID PAGE
+           Shows the user's decentralized identity information.
+        ==================================================================================== -->
+        <section id="sovereign-id" class="page">
+            <h1>Sovereign Identity (DID)</h1>
+            <div class="card" style="max-width: 800px; margin: 0 auto;">
+                <header class="card-header">Your Sovereign Identity</header>
+                <p style="margin-bottom: 1rem;">Your identity is cryptographically secured on the quantum ledger, not on our servers. You control it.</p>
+                <div class="detail-item"><span>DID</span><span>did:nexus:0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b</span></div>
+                <div class="detail-item"><span>Public Key</span><span>0x9b8c7d6e5a4b3c2d7f8a3b9c1d2e4f5a</span></div>
+                <div class="detail-item"><span>Verification Status</span><span style="color: var(--warning);">Awaiting Biometric Link</span></div>
+                <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;" onclick="showNotification('Biometric linking protocol initiated. Please use your quantum scanner.')"><i class="fas fa-fingerprint"></i> Link Biometrics</button>
+            </div>
+        </section>
+
+    </main>
+
+    <div id="notification" class="notification"><p id="notificationText"></p></div>
+
+    <script>
+        // ====================================================================================
+        // CENTRAL STATE MANAGEMENT OBJECT
+        // ====================================================================================
+        const appState = {
+            user: { name: "Amnon Ronen", initials: "AR" },
+            funds: { pending: 226440, fee: 5600, status: 'processing' },
+            transactions: [ { id: 1, name: "Prize Entanglement", date: new Date().toISOString(), amount: 226440, status: "Entangled", hash: "0x7f8a3b9c..." } ],
+        };
+
+        // ====================================================================================
+        // CORE UTILITY FUNCTIONS
+        // ====================================================================================
+        function formatCurrency(amount) { return new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS' }).format(amount); }
+        function showNotification(message, duration = 4000) { const el = document.getElementById('notification'); document.getElementById('notificationText').textContent = message; el.classList.add('show'); setTimeout(() => el.classList.remove('show'), duration); }
+        function playWelcomeNote() { const message = `Welcome to Nexus Apex. Your assets are in a stable quantum entanglement. A decoupling fee of 5,600 ILS is required to finalize the transfer.`; const utterance = new SpeechSynthesisUtterance(message); utterance.lang = 'en-US'; utterance.rate = 0.9; speechSynthesis.speak(utterance); showNotification("Audio summary initiated..."); }
+
+        // ====================================================================================
+        // PAGE RENDERING LOGIC
+        // ====================================================================================
+        function renderIntelligencePage() {
+            document.getElementById('netWorth').textContent = formatCurrency(appState.funds.pending);
+            document.getElementById('releaseFee').textContent = formatCurrency(appState.funds.fee);
+            document.getElementById('finalAmount').textContent = formatCurrency(appState.funds.pending);
+            document.getElementById('fundStatus').textContent = 'Quantum Entanglement Stable';
+            document.querySelector('.user-avatar').textContent = appState.user.initials;
+            const logHtml = appState.transactions.map(t => `<tr><td>${new Date(t.date).toLocaleTimeString()}</td><td>${t.name}</td><td>${t.hash}</td><td style="text-align: right; font-weight: bold; color: var(--accent-green);">${formatCurrency(t.amount)}</td></tr>`).join('');
+            document.getElementById('transactionLog').innerHTML = logHtml;
+        }
+
+        // ====================================================================================
+        // SPA NAVIGATION SYSTEM
+        // This is the core of the new functionality.
+        // ====================================================================================
+        function showPage(pageId) {
+            // 1. Hide all pages
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+
+            // 2. Show the selected page
+            document.getElementById(pageId).classList.add('active');
+
+            // 3. Update the active navigation link
+            document.querySelectorAll('.nav-links a').forEach(link => link.classList.remove('active'));
+            document.querySelector(`.nav-links a[data-page="${pageId}"]`).classList.add('active');
+
+            // 4. Render the content for the specific page
+            if (pageId === 'intelligence') {
+                renderIntelligencePage();
+            }
+            // Add more `else if` blocks here for other pages if they have dynamic content
+        }
+
+        // ====================================================================================
+        // INITIALIZATION & EVENT LISTENERS
+        // ====================================================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add click listeners to all navigation links
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault(); // Prevent default anchor jump
+                    const targetPage = link.dataset.page;
+                    showPage(targetPage);
+                });
+            });
+
+            // Initial render of the default page
+            renderIntelligencePage();
+        });
+    </script>
+</body>
+</html>
